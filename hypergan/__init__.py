@@ -6,6 +6,7 @@ from hypergan.util.gan_server import *
 from tensorflow.contrib import ffmpeg
 import hypergan.util.hc_tf as hc_tf
 import hypergan.generators.resize_conv as resize_conv
+import hypergan.generators.colorized_resize_conv as colorized_resize_conv
 import hypergan.generators.dense_resize_conv as dense_resize_conv
 import hypergan.generators.resize_conv_extra_layer as resize_conv_extra_layer
 import hypergan.trainers.adam_trainer as adam_trainer
@@ -13,6 +14,7 @@ import hypergan.trainers.rmsprop_trainer as rmsprop_trainer
 import hypergan.trainers.slowdown_trainer as slowdown_trainer
 import hypergan.trainers.sgd_adam_trainer as sgd_adam_trainer
 import hypergan.discriminators.pyramid_discriminator as pyramid_discriminator
+import hypergan.discriminators.fast_strided_discriminator as fast_strided_discriminator
 import hypergan.discriminators.pyramid_nostride_discriminator as pyramid_nostride_discriminator
 import hypergan.discriminators.slim_stride as slim_stride
 import hypergan.discriminators.densenet_discriminator as densenet_discriminator
@@ -62,7 +64,7 @@ hc.set('dtype', tf.float32) #The data type to use in our GAN.  Only float32 is s
 # Generator configuration
 hc.set("generator.z", 2) # the size of the encoding.  Encoder is set by the 'encoder' property, but could just be a random_uniform
 
-hc.set("generator", [resize_conv.generator])
+hc.set("generator", [colorized_resize_conv.generator])
 hc.set("generator.z_projection_depth", 1024) # Used in the first layer - the linear projection of z
 
 hc.set("generator.activation", [prelu("g_")]); # activation function used inside the generator
@@ -106,9 +108,9 @@ hc.set("trainer.sgd_adam.generator.lr", 1e-3) # g learning rate
 discriminators = []
 for i in range(1):
     discriminators.append(densenet_discriminator.config(layers=5))
+    discriminators.append(fast_strided_discriminator.config(layers=2))
 for i in range(1):
-    discriminators.append(densenet_discriminator.config(resize=[32,32], layers=4))
-    discriminators.append(pyramid_nostride_discriminator.config(resize=[32,32], layers=4))
+    discriminators.append(densenet_discriminator.config(resize=[64,64], layers=4))
 hc.set("discriminators", [discriminators])
 
 

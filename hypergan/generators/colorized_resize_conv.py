@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 from hypergan.util.hc_tf import *
 
-def generator(config, net):
+def generator(config, net, x_orig):
     depth=0
     w=int(net.get_shape()[1])
     target_w=int(config['x_dims'][0])
@@ -16,6 +16,12 @@ def generator(config, net):
     batch_size = config['batch_size']
     depth_reduction = np.float32(config['generator.resize_conv.depth_reduction'])
     batch_norm = config['generator.regularizers.layer']
+
+    x_orig = tf.slice(x_orig, [0,0,0,0], [-1,-1,-1,1])
+    resize = [96//2, 128//2]
+    x_orig = tf.image.resize_images(x_orig, resize, 1)
+    x_orig = tf.less(x_orig, 0.1)
+    x_orig = tf.cast(x_orig, tf.float32)
 
     s = [int(x) for x in net.get_shape()]
 
@@ -40,6 +46,10 @@ def generator(config, net):
         if fltr > net.get_shape()[2]:
             fltr=int(net.get_shape()[2])
         
+        if int(net.get_shape()[1]) == int(x_orig.get_shape()[1]):
+            print("ADDING XORIG")
+            net = tf.concat(3, [net, x_orig])
+
         if i > 0:
             net = block_conv(net, activation, batch_size, 'identity', 'g_layers_'+str(i), output_channels=layers, filter=3, batch_norm=batch_norm, noise_shape=noise, resize=[resized_wh[0], resized_wh[1]])
         

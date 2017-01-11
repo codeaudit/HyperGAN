@@ -6,7 +6,7 @@ import hypergan.util.wavegan as wavegan
 import hyperchamber as hc
 TINY = 1e-12
 
-def generator(config, inputs, reuse=False):
+def generator(config, inputs, x, reuse=False):
     x_dims = config['x_dims']
     output_channels = config['channels']
     activation = config['generator.activation']
@@ -33,7 +33,7 @@ def generator(config, inputs, reuse=False):
         new_shape = [config['batch_size'], primes[0],primes[1],z_proj_dims]
         net = tf.reshape(net, new_shape)
 
-        nets = config['generator'](config, net)
+        nets = config['generator'](config, net, x)
 
         return nets
 
@@ -167,7 +167,7 @@ def create(config, x,y,f):
     z, encoded_z, z_mu, z_sigma = config['encoder'](config, x, y)
 
     # create generator
-    g = generator(config, [y, z]+categories_t)
+    g = generator(config, [y, z]+categories_t, x)
 
     #encoded = generator(config, [y, encoded_z]+categories_t, reuse=True)
 

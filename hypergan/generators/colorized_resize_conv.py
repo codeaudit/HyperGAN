@@ -17,11 +17,9 @@ def generator(config, net, x_orig):
     depth_reduction = np.float32(config['generator.resize_conv.depth_reduction'])
     batch_norm = config['generator.regularizers.layer']
 
-    x_orig = tf.slice(x_orig, [0,0,0,0], [-1,-1,-1,1])
-    resize = [96//2, 128//2]
-    x_orig = tf.image.resize_images(x_orig, resize, 1)
-    x_orig = tf.less(x_orig, 0.1)
-    x_orig = tf.cast(x_orig, tf.float32)
+    s = [int(x) for x in x_orig.get_shape()]
+    x_orig = tf.image.rgb_to_grayscale([x_orig])
+    x_orig = tf.reshape(x_orig,[s[0], s[1], s[2], 1])
 
     s = [int(x) for x in net.get_shape()]
 

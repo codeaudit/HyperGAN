@@ -43,8 +43,10 @@ def discriminator(root_config, config, x, g, xs, gs, prefix='d_'):
         xs = [px for px in xs if not should_ignore_layer(px, config['resize'])]
         gs = [pg for pg in gs if not should_ignore_layer(pg, config['resize'])]
 
-        x = tf.image.resize_images(x,config['resize'], 1)
-        g = tf.image.resize_images(g,config['resize'], 1)
+        #x = tf.image.resize_images(x,config['resize'], 1)
+        #g = tf.image.resize_images(g,config['resize'], 1)
+        x=xs[0]
+        g=gs[0]
 
     print("X XSXS SX", x.get_shape(), g.get_shape(), xs, config['resize'])
 
